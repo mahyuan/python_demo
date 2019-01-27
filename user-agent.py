@@ -2,10 +2,14 @@
 # coding:utf-8
 
 import requests
+from lxml import html
+import random
+from datetime import datetime
+import time
 import urllib
 
 
-import random
+host = 'https://h5.xiaohongchun.com'
 def get_user_agent():
     user_agents =  [
         "Mozilla/5.0 (Linux; U; Android 8.1.0; zh-cn; BLA-AL00 Build/HUAWEIBLA-AL00) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 MQQBrowser/8.9 Mobile Safari/537.36",
@@ -30,36 +34,28 @@ def get_user_agent():
 proxies = {
     '119.101.125.1',
     '119.101.125.140',
-    
 }
-# resp = requests.get(url,proxies = proxies)
 
-# url = "http://www.ip181.com/"
-url = 'https://blog.csdn.net'
-import urllib.request
-with urllib.request.urlopen(url) as url:
-    s = url.read()
-#I'm guessing this would output the html source code?
-print(s)
-# proxy_support = urllib.ProxyHandler({'http':'121.40.108.76'})
-#参数是一个字典{'类型':'代理ip:端口号'}
-# opener = urllib.build_opener(proxy_support)
-#定制opener
-# opener.add_handler=[('User-Agent','Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36')]
-#add_handler给加上伪装
-# urllib.install_opener(opener)
-# response = urllib.urlopen(url)
 
-# print(response.read().decode('gbk'))
+def getpage(vid):
+    proxies = {'http': 'http://119.90.126.106', 'https': 'https://119.101.125.226'}
+    headers = {
+        "method": "GET",
+        "scheme": "https",
+        # ":path": "/video?vid=346047",
+        "authority": "h5.xiaohongchun.com",
+        # "cookie": "session_id=6677d9388eca4323a5d241a3424bae91",
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "upgrade-insecure-requests": "1",
+        "User-Agent": get_user_agent(),
+        "accept-language": "zh-cn",
+        "accept-encoding": "br, gzip, deflate"
+    }
+    baseurl = '{host}/video?vid={vid}'.format(host=host, vid=vid)
+    response = requests.get(baseurl, headers=headers, proxies=proxies)
+    # response = requests.get(baseurl, headers=headers)
+    print(response)
 
-# headers = {
-#     'User-Agent': ua.random
-# }
-# print (headers)
-# url = 'https://www.baidu.com/'
-# response = requests.get(url, headers=headers)
-# print(response.status_code)
-# p = 0
-# while p < 20:
-    # print(get_user_agent)
-#     p += 1
+
+if __name__ == '__main__':
+    getpage(39393)

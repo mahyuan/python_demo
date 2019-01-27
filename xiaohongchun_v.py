@@ -7,20 +7,13 @@ import pymongo
 import time
 import random
 from datetime import datetime
-import os
-import sys
-import signal
+import re
+# import os
+# import sys
+# import signal
 
-# from fake_useragent import UserAgent
-ua = UserAgent()
-print(ua.ie)
-print(ua.opera)
-print(ua.chrome)
-print(ua.google)
-print(ua.firefox)
-print(ua.safari)
-print(ua.random)
 
+host = 'https://h5.xiaohongchun.com'
 
 # 连接数据库
 client = pymongo.MongoClient(host='127.0.0.1', port=27017)
@@ -29,72 +22,16 @@ db = client.xhc
 # 指定集合
 collname = db.video_info
 
+
 # 写入数据库
 def insert_data(info):
     result = collname.insert_one(info)
     print(result)
 
 
-host = 'https://h5.xiaohongchun.com'
-def getpage(vid):
-    baseurl = '{host}/video?vid={vid}'.format(host=host, vid=vid)
-    response = requests.get(baseurl, headers=headers)
-    headers = {
-        ":method": "GET",
-        ":scheme": "https",
-        # ":path": "/video?vid=346047",
-        ":authority": "h5.xiaohongchun.com",
-        # "cookie": "session_id=6677d9388eca4323a5d241a3424bae91",
-        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "upgrade-insecure-requests": "1",
-        "User-Agent": ua.random,
-        "accept-language": "zh-cn",
-        "accept-encoding": "br, gzip, deflate"
-    }
-
-    if response.status_code == 200:
-        selector = html.fromstring(response.content)
-
-    try:
-        # 分析页面获取数据
-        # for i in selector.xpath('//ul[@id="pins"]/li/a/@href'):
-        video = selector.xpath('//div[@id="container"]//video/@src')[0]
-        type = selector.xpath('//div[@id="container"]//video/@type')[0]
-        poster = selector.xpath('//div[@id="container"]//video/@poster')[0]
-        avator = selector.xpath('//div[starts-with(@class, "video_user_info")]/div[starts-with(@class, "left-")]//img/@src')[0]
-        username = selector.xpath('//div[starts-with(@class, "video_user_info")]/div[starts-with(@class, "middle-")]//a/text()')[0]
-        time = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "middle-")]/span/text()')[0]
-        view_count = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "middle-")]/span/text()')[1]
-        desc = selector.xpath('//div[starts-with(@class, "vdesc_con-")]/*[starts-with(@class, "desc-")]/text()')[0]
-        # 点赞量
-        like = selector.xpath('//div[starts-with(@class, "actions-")]/span[starts-with(@class, "like-")]/text()')[0]
-        # 收藏量
-        # collection = selector.xpath('//div[starts-with(@class, "actions-")]/span[starts-with(@class, "collect-")]/text()')[0]
-        collection = selector.xpath('//span[starts-with(@class, "collect-")]/text()')[0]
-        print('collection', collection)
-        # 数据组装成字典
-        info = {
-            'vid': vid,
-            'src': video,
-            'type': type,
-            'avator': avator,
-            'poster': poster,
-            'nick': username,
-            'upload_time': time,
-            'view_count': view_count,
-            'desc': desc,
-            'like': like,
-            'collection': collection,
-            'create_time': datetime.now()
-        }
-        return info
-    except:
-        return False
-
-
 # 获取随机手机 user_agents
 def get_user_agent():
-    user_agents =  [
+    user_agents = [
         "Mozilla/5.0 (Linux; U; Android 8.1.0; zh-cn; BLA-AL00 Build/HUAWEIBLA-AL00) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 MQQBrowser/8.9 Mobile Safari/537.36",
         "Mozilla/5.0 (iPhone 6s; CPU iPhone OS 11_4_1 like Mac OS X) AppleWebKit/604.3.5 (KHTML, like Gecko) Version/11.0 MQQBrowser/8.3.0 Mobile/15B87 Safari/604.1 MttCustomUA/2 QBWebViewType/1 WKType/1",
         "Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko Version/12.0 ,Mobile/15E148 Safari/604.1",
@@ -115,10 +52,72 @@ def get_user_agent():
     return user_agent
 
 
+def getpage(vid):
+    proxies = {'http': 'http://119.101.125.248', 'https': 'https://119.101.125.226'}
+    headers = {
+        "method": "GET",
+        "scheme": "https",
+        # ":path": "/video?vid=346047",
+        "authority": "h5.xiaohongchun.com",
+        # "cookie": "session_id=6677d9388eca4323a5d241a3424bae91",
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "upgrade-insecure-requests": "1",
+        "User-Agent": get_user_agent(),
+        "accept-language": "zh-cn",
+        "accept-encoding": "br, gzip, deflate"
+    }
+    baseurl = '{host}/video?vid={vid}'.format(host=host, vid=vid)
+    # response = requests.get(baseurl, headers=headers, proxies=proxies)
+    response = requests.get(baseurl, headers=headers)
+    print(response)
+    if response.status_code == 200:
+        selector = html.fromstring(response.content)
+
+    try:
+        # 分析页面获取数据
+        # for i in selector.xpath('//ul[@id="pins"]/li/a/@href'):
+        video = selector.xpath('//div[@id="container"]//video/@src')[0]
+        type = selector.xpath('//div[@id="container"]//video/@type')[0]
+        poster = selector.xpath('//div[@id="container"]//video/@poster')[0]
+        avator = selector.xpath('//div[starts-with(@class, "video_user_info")]/div[starts-with(@class, "left-")]//img/@src')[0]
+        username = selector.xpath('//div[starts-with(@class, "video_user_info")]/div[starts-with(@class, "middle-")]//a/text()')[0]
+        time = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "middle-")]/span/text()')[0]
+        totalCount = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "middle-")]/span/text()')[1]
+        # 提取播放量中的数字 "1580次播放"
+        view_count = int(re.sub("\D", "", totalCount))
+        desc = selector.xpath('//div[starts-with(@class, "vdesc_con-")]/*[starts-with(@class, "desc-")]/text()')[0]
+        # 点赞量
+        like = selector.xpath('//div[starts-with(@class, "actions-")]/span[starts-with(@class, "like-")]/text()')[0]
+        # 收藏量
+        # collection = selector.xpath('//div[starts-with(@class, "actions-")]/span[starts-with(@class, "collect-")]/text()')[0]
+        collection = selector.xpath('//span[starts-with(@class, "collect-")]/text()')[0]
+        print('view_count', view_count)
+
+
+        # 数据组装成字典
+        info = {
+            'vid': vid,
+            'src': video,
+            'type': type,
+            'avator': avator,
+            'poster': poster,
+            'nick': username,
+            'upload_time': time,
+            'view_count': view_count,
+            'desc': desc,
+            'like': like,
+            'collection': collection,
+            'create_time': datetime.now()
+        }
+        return info
+    except:
+        return False
+
+
 # 持续调用
 def start():
     # 目测视频Id是大于4位的数字
-    vid = 2002
+    vid = 5076
     while 1:
         res = getpage(vid)
         if res:
@@ -133,5 +132,3 @@ def start():
 
 if __name__ == '__main__':
     start()
-    # vid = 345879
-    # getpage(vid)
