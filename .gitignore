@@ -1,0 +1,7 @@
+.idea
+.vscode
+.cache
+.DS_Store
+*.log*
+*.swap
+
