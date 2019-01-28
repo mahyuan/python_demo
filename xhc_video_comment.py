@@ -1,11 +1,13 @@
-#!/usr/bin/python
-# coding:utf-8
+#!/usr/bin/python3
+# -* coding: UTF-8 -*-
 
 import requests
 from lxml import html
 import pymongo
 import time
 import random
+import json
+# import ast
 from datetime import datetime
 import re
 # import os
@@ -20,12 +22,13 @@ client = pymongo.MongoClient(host='127.0.0.1', port=27017)
 # 指定数据库
 db = client.xhc
 # 指定集合
-collname = db.video_info
+collname = db.video_comment
 
 
 # 写入数据库
 def insert_data(info):
-    result = collname.insert_one(info)
+    print('---------data----------- ', info)
+    result = collname.insert_many(info)
     print(result)
 
 
@@ -55,60 +58,30 @@ def get_user_agent():
 def getpage(vid):
     proxies = {'http': 'http://119.101.125.248', 'https': 'https://119.101.125.226'}
     headers = {
+        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
+        "accept-language": "zh-CN,zh;q=0.9,zh-TW;q=0.8,la;q=0.7,ko;q=0.6,en;q=0.5",
+        "cache-control": "no-cache",
+        "pragma": "no-cache",
+        "upgrade-insecure-requests": "1",
         "method": "GET",
         "scheme": "https",
-        # ":path": "/video?vid=346047",
+        "referer":"https://h5.xiaohongchun.com/video?vid={}".format(vid),
         "authority": "h5.xiaohongchun.com",
-        # "cookie": "session_id=6677d9388eca4323a5d241a3424bae91",
-        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "upgrade-insecure-requests": "1",
         "User-Agent": get_user_agent(),
-        "accept-language": "zh-cn",
         "accept-encoding": "br, gzip, deflate"
     }
-    baseurl = '{host}/video?vid={vid}'.format(host=host, vid=vid)
+    baseurl = '{host}/video/{vid}/comments'.format(host=host, vid=vid)
     # response = requests.get(baseurl, headers=headers, proxies=proxies)
-    response = requests.get(baseurl, headers=headers)
-    print(response)
+    response = requests.get(baseurl, headers=headers, verify=False)
+    # print(response)
     if response.status_code == 200:
         selector = html.fromstring(response.content)
 
     try:
         # 分析页面获取数据
         # for i in selector.xpath('//ul[@id="pins"]/li/a/@href'):
-        video = selector.xpath('//div[@id="container"]//video/@src')[0]
-        type = selector.xpath('//div[@id="container"]//video/@type')[0]
-        poster = selector.xpath('//div[@id="container"]//video/@poster')[0]
-        avator = selector.xpath('//div[starts-with(@class, "video_user_info")]/div[starts-with(@class, "left-")]//img/@src')[0]
-        username = selector.xpath('//div[starts-with(@class, "video_user_info")]/div[starts-with(@class, "middle-")]//a/text()')[0]
-        time = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "middle-")]/span/text()')[0]
-        totalCount = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "middle-")]/span/text()')[1]
-        # 提取播放量中的数字 "1580次播放"
-        view_count = int(re.sub("\D", "", totalCount))
-        desc = selector.xpath('//div[starts-with(@class, "vdesc_con-")]/*[starts-with(@class, "desc-")]/text()')[0]
-        # 点赞量
-        like = selector.xpath('//div[starts-with(@class, "actions-")]/span[starts-with(@class, "like-")]/text()')[0]
-        # 收藏量
-        # collection = selector.xpath('//div[starts-with(@class, "actions-")]/span[starts-with(@class, "collect-")]/text()')[0]
-        collection = selector.xpath('//span[starts-with(@class, "collect-")]/text()')[0]
-        print('view_count', view_count)
-
-
-        # 数据组装成字典
-        info = {
-            'vid': vid,
-            'src': video,
-            'type': type,
-            'avator': avator,
-            'poster': poster,
-            'nick': username,
-            'upload_time': time,
-            'view_count': view_count,
-            'desc': desc,
-            'like': like,
-            'collection': collection,
-            'create_time': datetime.now()
-        }
+        pre = selector.xpath('//pre[@vue-data="comments"]/text()')[0]
+        info = json.loads(pre)
         return info
     except:
         return False
@@ -117,18 +90,20 @@ def getpage(vid):
 # 持续调用
 def start():
     # 目测视频Id是大于4位的数字
-    vid = 345954
+    vid = 321498
     while 1:
         res = getpage(vid)
         if res:
-            print('start insert data', res)
+            # print('start insert data:', res)
             insert_data(res)
         else:
             print('-------res----:', res)
         print('curent vid is: ', vid)
         vid -= 1
-        time.sleep(random.randint(0,1))
+        time.sleep(random.randint(0, 1))
 
 
 if __name__ == '__main__':
     start()
+    # vid = 345883
+    # getpage(vid)
