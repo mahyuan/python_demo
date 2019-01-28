@@ -23,6 +23,13 @@ db = client.xhc
 collname = db.video_info
 
 
+# 获取最后插入的数据
+def get_last_vid():
+    # db.getCollection('video_info').find().sort({vid: 1})
+    last = list(collname.find().sort("_id", pymongo.DESCENDING).limit(1))[0]
+    return last['vid']
+
+
 # 写入数据库
 def insert_data(info):
     result = collname.insert_one(info)
@@ -115,9 +122,9 @@ def getpage(vid):
 
 
 # 持续调用
-def start():
+def start(vid):
     # 目测视频Id是大于4位的数字
-    vid = 345954
+    # vid = 342906
     while 1:
         res = getpage(vid)
         if res:
@@ -131,4 +138,5 @@ def start():
 
 
 if __name__ == '__main__':
-    start()
+    v = int(get_last_vid())
+    start(v)
