@@ -76,13 +76,16 @@ def getpage(vid):
         "accept-encoding": "br, gzip, deflate"
     }
     baseurl = '{host}/video/{vid}/comments'.format(host=host, vid=vid)
-    # response = requests.get(baseurl, headers=headers, proxies=proxies)
-    response = requests.get(baseurl, headers=headers, verify=False)
-    # print(response)
-    if response.status_code == 200:
-        selector = html.fromstring(response.content)
+
 
     try:
+        # response = requests.get(baseurl, headers=headers, proxies=proxies)
+        response = requests.get(baseurl, headers=headers, verify=False)
+        # print(response)
+        if response.status_code == 200:
+            selector = html.fromstring(response.content)
+
+
         # 分析页面获取数据
         # for i in selector.xpath('//ul[@id="pins"]/li/a/@href'):
         pre = selector.xpath('//pre[@vue-data="comments"]/text()')[0]
@@ -94,16 +97,14 @@ def getpage(vid):
 
 # 持续调用
 def start(vid):
-    # 目测视频Id是大于4位的数字
-    # vid = 311977
     while 1:
         res = getpage(vid)
         if res:
-            print('start insert data:', res)
+            print('-------- insert data-----------\n', res)
             insert_data(res)
-            pass
         else:
-            print('-------res----:', res)
+            print('-------request failed ----: ', res)
+            pass
         print('curent vid is: ', vid)
         vid -= 1
         # time.sleep(random.randint(0,1))
