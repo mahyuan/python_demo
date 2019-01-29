@@ -36,6 +36,12 @@ def insert_data(info):
     print(result)
 
 
+# 插入多条数据，提高插入性能
+def insert_many_data(info):
+    result = collname.insert_many(info)
+    print('------result-----', result)
+
+
 # 获取随机手机 user_agents
 def get_user_agent():
     user_agents = [
@@ -78,7 +84,7 @@ def getpage(vid):
     try:
         # response = requests.get(baseurl, headers=headers, proxies=proxies)
         response = requests.get(baseurl, headers=headers, verify=False)
-        print(response)
+        # print(response)
         if response.status_code == 200:
             selector = html.fromstring(response.content)
 
@@ -103,7 +109,7 @@ def getpage(vid):
         # 收藏量
         # collection = selector.xpath('//div[starts-with(@class, "actions-")]/span[starts-with(@class, "collect-")]/text()')[0]
         collection = selector.xpath('//span[starts-with(@class, "collect-")]/text()')[0]
-        print('title', title)
+        # print('title', title)
 
 
         # 数据组装成字典
@@ -132,17 +138,33 @@ def getpage(vid):
 def start(vid):
     # 目测视频Id是大于4位的数字
     # vid = 342906
+    list = []
     while 1:
+        # 160220
         res = getpage(vid)
-        if res:
-            print('start insert data', res)
-            insert_data(res)
-        else:
-            print('-------res----:', res)
-        print('curent vid is: ', vid)
+        print(type(res))
         vid -= 1
+        # 243792
+        # 160072
+        if vid < 150000:
+            print('======ended======')
+            break
+
+        if res:
+            list.append(res)
+            if len(list) > 100:
+                insert_many_data(list)
+                list.clear()
+                # time.sleep(random.uniform(0, 0.1))
+            else:
+                print('--------<--------')
+                pass
+        else:
+            # print('-------res----:', res)
+            pass
+        print('curent vid is: ', vid)
         # time.sleep(random.randint(0, 1))
-        time.sleep(random.uniform(0, 0.5))
+        time.sleep(random.uniform(0, 0.01))
 
 
 if __name__ == '__main__':
