@@ -94,13 +94,16 @@ def getpage(vid):
         totalCount = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "middle-")]/span/text()')[1]
         # 提取播放量中的数字 "1580次播放"
         view_count = int(re.sub("\D", "", totalCount))
+        # title
+        title = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "title-")]/text()')[0]
+        # 描述
         desc = selector.xpath('//div[starts-with(@class, "vdesc_con-")]/*[starts-with(@class, "desc-")]/text()')[0]
         # 点赞量
         like = selector.xpath('//div[starts-with(@class, "actions-")]/span[starts-with(@class, "like-")]/text()')[0]
         # 收藏量
         # collection = selector.xpath('//div[starts-with(@class, "actions-")]/span[starts-with(@class, "collect-")]/text()')[0]
         collection = selector.xpath('//span[starts-with(@class, "collect-")]/text()')[0]
-        print('view_count', view_count)
+        print('title', title)
 
 
         # 数据组装成字典
@@ -113,6 +116,7 @@ def getpage(vid):
             'nick': username,
             'upload_time': time,
             'view_count': view_count,
+            'title': title,
             'desc': desc,
             'like': like,
             'collection': collection,
