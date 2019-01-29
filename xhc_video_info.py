@@ -74,13 +74,15 @@ def getpage(vid):
         "accept-encoding": "br, gzip, deflate"
     }
     baseurl = '{host}/video?vid={vid}'.format(host=host, vid=vid)
-    # response = requests.get(baseurl, headers=headers, proxies=proxies)
-    response = requests.get(baseurl, headers=headers)
-    print(response)
-    if response.status_code == 200:
-        selector = html.fromstring(response.content)
 
     try:
+        # response = requests.get(baseurl, headers=headers, proxies=proxies)
+        response = requests.get(baseurl, headers=headers, verify=False)
+        print(response)
+        if response.status_code == 200:
+            selector = html.fromstring(response.content)
+
+
         # 分析页面获取数据
         # for i in selector.xpath('//ul[@id="pins"]/li/a/@href'):
         video = selector.xpath('//div[@id="container"]//video/@src')[0]
@@ -119,6 +121,7 @@ def getpage(vid):
         return info
     except:
         return False
+
 
 
 # 持续调用
