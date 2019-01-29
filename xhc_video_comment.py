@@ -99,6 +99,10 @@ def getpage(vid):
 def start(vid):
     while 1:
         res = getpage(vid)
+        if vid < 150000:
+            print('======ended======')
+            break
+
         if res:
             print('-------- insert data-----------\n', res)
             insert_data(res)
@@ -108,7 +112,7 @@ def start(vid):
         print('curent vid is: ', vid)
         vid -= 1
         # time.sleep(random.randint(0,1))
-        time.sleep(random.uniform(0, 0.5))
+        time.sleep(random.uniform(0, 0.02))
 
 
 if __name__ == '__main__':
