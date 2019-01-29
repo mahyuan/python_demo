@@ -11,7 +11,7 @@ import re
 # import os
 # import sys
 # import signal
-
+import urllib3
 
 host = 'https://h5.xiaohongchun.com'
 
@@ -83,6 +83,7 @@ def getpage(vid):
 
     try:
         # response = requests.get(baseurl, headers=headers, proxies=proxies)
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         response = requests.get(baseurl, headers=headers, verify=False)
         # print(response)
         if response.status_code == 200:
@@ -138,33 +139,34 @@ def getpage(vid):
 def start(vid):
     # 目测视频Id是大于4位的数字
     # vid = 342906
-    list = []
+    li = []
     while 1:
         # 160220
         res = getpage(vid)
-        print(type(res))
+        # print(type(res))
         vid -= 1
         # 243792
         # 160072
-        if vid < 150000:
-            print('======ended======')
-            break
+        # if vid < 150000:
+        #     print('======ended======')
+        #     break
 
         if res:
-            list.append(res)
-            if len(list) > 100:
-                insert_many_data(list)
-                list.clear()
+            li.append(res)
+            if len(li) > 100:
+                print('---------data--------', li)
+                insert_many_data(li)
+                li.clear()
                 # time.sleep(random.uniform(0, 0.1))
             else:
-                print('--------<--------')
+                # print('--------<--------')
                 pass
         else:
             # print('-------res----:', res)
             pass
-        print('curent vid is: ', vid)
+        # print('curent vid is: ', vid)
         # time.sleep(random.randint(0, 1))
-        time.sleep(random.uniform(0, 0.01))
+        time.sleep(random.uniform(0, 0.005))
 
 
 if __name__ == '__main__':

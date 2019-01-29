@@ -13,7 +13,7 @@ import re
 # import os
 # import sys
 # import signal
-
+import urllib3
 
 host = 'https://h5.xiaohongchun.com'
 
@@ -80,6 +80,7 @@ def getpage(vid):
 
     try:
         # response = requests.get(baseurl, headers=headers, proxies=proxies)
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         response = requests.get(baseurl, headers=headers, verify=False)
         # print(response)
         if response.status_code == 200:
@@ -99,9 +100,9 @@ def getpage(vid):
 def start(vid):
     while 1:
         res = getpage(vid)
-        if vid < 150000:
-            print('======ended======')
-            break
+        # if vid < 150000:
+        #     print('======ended======')
+        #     break
 
         if res:
             print('-------- insert data-----------\n', res)
