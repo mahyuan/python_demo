@@ -61,33 +61,38 @@ def get_page():
         time.sleep(random.uniform(0, 0.005))
         baseurl = 'https://bing.ioliu.cn?p={pagesize}'.format(pagesize=str(pagesize))
         response = requests.get(baseurl, headers=headers)
-
+        # print('=======pagesize==========', pagesize)
         if response.status_code == 200:
             selector = html.fromstring(response.content)
-            imgs = selector.xpath('//div[@class="item"]//img/@src')
-            title = selector.xpath('//div[@class="item"]//div[@class="description"]/h3/text()')
-            calendar = selector.xpath('//div[@class="item"]//div[@class="description"]/*[@class="calendar"]/em/text()')
-            location = selector.xpath('//div[@class="item"]//div[@class="description"]/*[@class="location"]/em/text()')
-            view = selector.xpath('//div[@class="item"]//div[@class="description"]/*[@class="view"]/em/text()')
-
-            count = len(imgs) - 1
-            for index in range(0, count):
-                # print('--------------index----------------', index)
-                src = re.sub(r'_\d{3,4}x\d{3,4}', '_1920x1080', imgs[index])
+            item_list = selector.xpath('//div[@class="container"]/div[@class="item"]')
+            for i_item in item_list:
+                # douban_item['serial_number'] = i_item.xpath('.//div[@class="item"]//em/text()').extract_first()
+                img = i_item.xpath('.//img/@src')[0]
+                title = i_item.xpath('.//div[@class="description"]/h3/text()')
+                calendar = i_item.xpath('.//div[@class="description"]/*[@class="calendar"]/em/text()')
+                location = i_item.xpath('.//div[@class="description"]/*[@class="location"]/em/text()')
+                view = i_item.xpath('.//div[@class="description"]/*[@class="view"]/em/text()')
+                like = i_item.xpath('.//div[@class="options"]/span/@likes')
+                download = i_item.xpath('.//div[@class="options"]/a[2]/em/text()')
+                # '/html/body/div[3]/div[6]/div/div[2]/a[2]/em'
+                src = re.sub(r'_\d{3,4}x\d{3,4}', '_1920x1080', img)
+                # print('----hello _img--', _img)
+                # print('----location-----', type(location))
                 result = search(src)
                 if result:
-                    print('------esixts--------', result)
+                    pass
                 else:
-                    print('=====not exis=======', result)
                     info = {
                         'src': src,
-                        'title': title[index],
-                        'calendar': calendar[index],
-                        'location': location[index],
-                        'view': int(view[index]),
+                        'title': title[0] if len(title) else '',
+                        'calendar': calendar[0] if len(calendar) else '',
+                        'location': location[0] if len(location) else '',
+                        'view': int(view[0] if len(view) else ''),
+                        'like': int(like[0] if len(like) else ''),
+                        'download': int(download[0] if len(download) else ''),
                         'append_date': datetime.now()
                     }
-                    print('info', info)
+                    print('-----info------\n', info)
                     insert(info)
                     info.clear()
 
