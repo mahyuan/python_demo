@@ -155,7 +155,7 @@ def start(vid):
         # 160220
         res = getpage(vid)
         # print(type(res))
-        vid -= 1
+        vid += 1
         # 243792
         # 160072
         # if vid < 150000:
@@ -164,6 +164,7 @@ def start(vid):
 
         if res:
             li.append(res)
+            print('-------res-----', res)
             if len(li) > 100:
                 print('---------data--------', li)
                 insert_many_data(li)
@@ -175,7 +176,7 @@ def start(vid):
         else:
             # print('-------res----:', res)
             pass
-        # print('curent vid is: ', vid)
+        print('curent vid is: ', vid)
         # time.sleep(random.randint(0, 1))
         time.sleep(random.uniform(0, 0.005))
 
