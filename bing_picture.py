@@ -33,7 +33,7 @@ def insert(info):
     document.insert_one(info)
 
 
-# 获取最大页数
+# 爬取页面
 def get_page():
     us = UserAgent()
     headers = {
@@ -50,10 +50,16 @@ def get_page():
         'Cookie': 'Hm_lvt_667639aad0d4654c92786a241a486361=1548822638; likes=; Hm_lpvt_667639aad0d4654c92786a241a486361=1548822830'
     }
 
-    for pagesize in range(1, 89):
+    baseurl = 'https://bing.ioliu.cn'
+    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+    response = requests.get(baseurl, headers=headers)
+    if response.status_code == 200:
+        selector = html.fromstring(response.content)
+        text = selector.xpath('//div[@class="page"]/span/text()')[0]
+        total = int(text.split('/')[1])
+    for pagesize in range(1, total):
         time.sleep(random.uniform(0, 0.005))
         baseurl = 'https://bing.ioliu.cn?p={pagesize}'.format(pagesize=str(pagesize))
-        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
         response = requests.get(baseurl, headers=headers)
 
         if response.status_code == 200:
@@ -66,10 +72,8 @@ def get_page():
 
             count = len(imgs) - 1
             for index in range(0, count):
-                # pass
                 # print('--------------index----------------', index)
                 src = re.sub(r'_\d{3,4}x\d{3,4}', '_1920x1080', imgs[index])
-                # print('src', type(src))
                 result = search(src)
                 if result:
                     print('------esixts--------', result)
