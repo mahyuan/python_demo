@@ -114,7 +114,7 @@ def start(vid):
             print('-------request failed ----: ', res)
             pass
         print('curent vid is: ', vid)
-        vid -= 1
+        vid += 1
         # time.sleep(random.randint(0,1))
         time.sleep(random.uniform(0, 0.02))
 
