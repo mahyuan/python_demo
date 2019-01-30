@@ -21,7 +21,7 @@ client = pymongo.MongoClient(host='127.0.0.1', port=27017)
 db = client.xhc
 # 指定集合
 collname = db.video_info
-
+coll_no_exists = db.video_not_exists
 
 # 获取最后插入的数据
 def get_last_vid():
@@ -30,10 +30,17 @@ def get_last_vid():
     return last['vid']
 
 
+# 根据vid查找数据
+def search_byvid(vid):
+    result = collname.find_one({'vid': vid}, {'vid': 1})
+    return result
+
+
+
 # 写入数据库
 def insert_data(info):
     result = collname.insert_one(info)
-    print(result)
+    print('--insert data result----', result)
 
 
 # 插入多条数据，提高插入性能
@@ -41,6 +48,10 @@ def insert_many_data(info):
     result = collname.insert_many(info)
     print('------result-----', result)
 
+# 没有请求到的vid存入库
+def insert_vid(vid):
+    result = coll_no_exists.insert_one({'vid': vid})
+    print('---insert vid result---', result)
 
 # 获取随机手机 user_agents
 def get_user_agent():
@@ -169,6 +180,32 @@ def start(vid):
         time.sleep(random.uniform(0, 0.005))
 
 
+# 依次查询没有的数据
+def loop():
+    min_val, max_val = 12877, 345954
+    key = max_val
+    while key > min_val:
+        # 查询数据库，不存在的就请求，请求失败把vid存入vid表，存在的数据插入video表
+        data = search_byvid(key)
+        # print('vid: {vid}, data: {data}'.format(vid=key, data=data))
+        if data:
+            print('---db has data----:', data)
+        else:
+            time.sleep(0.0001)
+            res = getpage(key)
+            print('---res from request---', res)
+            if res:
+                # print('---res from exits---', res)
+                insert_data(res)
+            else:
+                # print('---res form page not exists----', res)
+                insert_vid(key)
+
+        key -= 1
+        print('---------------------------------------------on loop end------vid---------------------', key)
+
+
 if __name__ == '__main__':
-    v = int(get_last_vid())
-    start(v)
+    # v = int(get_last_vid())
+    # start(v)
+    loop()

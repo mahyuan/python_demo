@@ -23,6 +23,9 @@ client = pymongo.MongoClient(host='127.0.0.1', port=27017)
 db = client.xhc
 # 指定集合
 collname = db.video_comment
+# 缺少评论的vid集合
+coll_comment = db.v_comment_not_exists
+
 
 # 获取最后插入的数据
 def get_last_vid():
