@@ -23,6 +23,9 @@ db = client.xhc
 collname = db.video_info
 coll_no_exists = db.video_not_exists
 
+flag = 0
+
+
 # 获取最后插入的数据
 def get_last_vid():
     # db.getCollection('video_info').find().sort({vid: 1})
@@ -30,11 +33,16 @@ def get_last_vid():
     return last['vid']
 
 
+# 获取最新视频，从数据库查找上video_id最大的，之后的视频就是没有爬到的最新数据
+def get_max_vid():
+    max_vid = list(collname.find().sort('vid', pymongo.DESCENDING).limit(1))[0]
+    return max_vid['vid']
+
+
 # 根据vid查找数据
 def search_byvid(vid):
     result = collname.find_one({'vid': vid}, {'vid': 1})
     return result
-
 
 
 # 写入数据库
@@ -48,10 +56,12 @@ def insert_many_data(info):
     result = collname.insert_many(info)
     print('------result-----', result)
 
+
 # 没有请求到的vid存入库
 def insert_vid(vid):
     result = coll_no_exists.insert_one({'vid': vid})
     print('---insert vid result---', result)
+
 
 # 获取随机手机 user_agents
 def get_user_agent():
@@ -77,7 +87,7 @@ def get_user_agent():
 
 
 def getpage(vid):
-    proxies = {'http': 'http://119.101.125.248', 'https': 'https://119.101.125.226'}
+    # proxies = {'http': 'http://119.101.125.248', 'https': 'https://119.101.125.226'}
     headers = {
         "method": "GET",
         "scheme": "https",
@@ -99,93 +109,90 @@ def getpage(vid):
         # print(response)
         if response.status_code == 200:
             selector = html.fromstring(response.content)
+            # 分析页面获取数据
+            # for i in selector.xpath('//ul[@id="pins"]/li/a/@href'):
+            source = selector.xpath('//div[@id="container"]//video/@src')
+            video = source[0] if len(source) > 0 else None
+            # print('---source----', t)
+            if video:
+                type = selector.xpath('//div[@id="container"]//video/@type')[0]
+                poster = selector.xpath('//div[@id="container"]//video/@poster')[0]
+                avator = selector.xpath('//div[starts-with(@class, "video_user_info")]/div[starts-with(@class, "left-")]//img/@src')[0]
+                username = selector.xpath('//div[starts-with(@class, "video_user_info")]/div[starts-with(@class, "middle-")]//a/text()')[0]
+                time = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "middle-")]/span/text()')[0]
+                totalCount = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "middle-")]/span/text()')[1]
+                # 提取播放量中的数字 "1580次播放"
+                view_count = int(re.sub("\D", "", totalCount))
+                # title
+                title = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "title-")]/text()')[0]
+                # 描述
+                desc = selector.xpath('//div[starts-with(@class, "vdesc_con-")]/*[starts-with(@class, "desc-")]/text()')[0]
+                # 点赞量
+                like = selector.xpath('//div[starts-with(@class, "actions-")]/span[starts-with(@class, "like-")]/text()')[0]
+                # 收藏量
+                collection = selector.xpath('//span[starts-with(@class, "collect-")]/text()')[0]
+                # print('title', title)
 
-
-        # 分析页面获取数据
-        # for i in selector.xpath('//ul[@id="pins"]/li/a/@href'):
-        video = selector.xpath('//div[@id="container"]//video/@src')[0]
-        type = selector.xpath('//div[@id="container"]//video/@type')[0]
-        poster = selector.xpath('//div[@id="container"]//video/@poster')[0]
-        avator = selector.xpath('//div[starts-with(@class, "video_user_info")]/div[starts-with(@class, "left-")]//img/@src')[0]
-        username = selector.xpath('//div[starts-with(@class, "video_user_info")]/div[starts-with(@class, "middle-")]//a/text()')[0]
-        time = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "middle-")]/span/text()')[0]
-        totalCount = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "middle-")]/span/text()')[1]
-        # 提取播放量中的数字 "1580次播放"
-        view_count = int(re.sub("\D", "", totalCount))
-        # title
-        title = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "title-")]/text()')[0]
-        # 描述
-        desc = selector.xpath('//div[starts-with(@class, "vdesc_con-")]/*[starts-with(@class, "desc-")]/text()')[0]
-        # 点赞量
-        like = selector.xpath('//div[starts-with(@class, "actions-")]/span[starts-with(@class, "like-")]/text()')[0]
-        # 收藏量
-        # collection = selector.xpath('//div[starts-with(@class, "actions-")]/span[starts-with(@class, "collect-")]/text()')[0]
-        collection = selector.xpath('//span[starts-with(@class, "collect-")]/text()')[0]
-        # print('title', title)
-
-
-        # 数据组装成字典
-        info = {
-            'vid': vid,
-            'src': video,
-            'type': type,
-            'avator': avator,
-            'poster': poster,
-            'nick': username,
-            'upload_time': time,
-            'view_count': view_count,
-            'title': title,
-            'desc': desc,
-            'like': like,
-            'collection': collection,
-            'create_time': datetime.now()
-        }
-        return info
-    except:
+                # 数据组装成字典
+                info = {
+                    'vid': vid,
+                    'src': video,
+                    'type': type,
+                    'avator': avator,
+                    'poster': poster,
+                    'nick': username,
+                    'upload_time': time,
+                    'view_count': view_count,
+                    'title': title,
+                    'desc': desc,
+                    'like': like,
+                    'collection': collection,
+                    'create_time': datetime.now()
+                }
+                return info
+    except KeyboardInterrupt:
         return False
-
 
 
 # 持续调用
 def start(vid):
-    # 目测视频Id是大于4位的数字
-    # vid = 342906
+    print('current vid is: ', vid)
     li = []
-    while 1:
-        # 160220
+    global flag
+    while True:
         res = getpage(vid)
-        # print(type(res))
-        vid += 1
-        # 243792
-        # 160072
-        # if vid < 150000:
-        #     print('======ended======')
-        #     break
-
         if res:
-            li.append(res)
+            flag = 0
+            data = search_byvid(vid)
+            if data is None:
+                li.append(res)
+
             print('-------res-----', res)
             if len(li) > 100:
-                print('---------data--------', li)
+                # print('---------data--------', li)
                 insert_many_data(li)
                 li.clear()
-                # time.sleep(random.uniform(0, 0.1))
-            else:
-                # print('--------<--------')
-                pass
         else:
-            # print('-------res----:', res)
-            pass
-        print('curent vid is: ', vid)
+            print('-------res----:', res)
+            flag += 1
+            if flag > 100:
+                if len(li) > 0:
+                    insert_many_data(li)
+                    li.clear()
+                print('------爬不到数据了--------')
+                break
         # time.sleep(random.randint(0, 1))
         time.sleep(random.uniform(0, 0.005))
+        vid += 1
 
 
 # 依次查询没有的数据
 def loop():
     min_val, max_val = 12877, 345954
     key = max_val
-    while key > min_val:
+
+    # 设置一个变量，如果返回的数据为空就自增，返回数据就清零，自增至大于100，可以认定没有数据了，退出循环
+    while True:
         # 查询数据库，不存在的就请求，请求失败把vid存入vid表，存在的数据插入video表
         data = search_byvid(key)
         # print('vid: {vid}, data: {data}'.format(vid=key, data=data))
@@ -202,11 +209,12 @@ def loop():
                 # print('---res form page not exists----', res)
                 insert_vid(key)
 
-        key -= 1
+        key += 1
         print('---------------------------------------------on loop end------vid---------------------', key)
 
 
 if __name__ == '__main__':
     # v = int(get_last_vid())
-    # start(v)
-    loop()
+    v = int(get_max_vid())
+    start(v + 1)
+    # loop()

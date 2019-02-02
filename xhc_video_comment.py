@@ -26,11 +26,19 @@ collname = db.video_comment
 # 缺少评论的vid集合
 coll_comment = db.v_comment_not_exists
 
+flag = 0
+
 
 # 获取最后插入的数据
 def get_last_vid():
     last = list(collname.find().sort("_id", pymongo.DESCENDING).limit(1))[0]
     return last['video_id']
+
+
+# 获取最新视频，从数据库查找上video_id最大的，之后的视频就是没有爬到的最新数据
+def get_max_vid():
+    max_vid = list(collname.find().sort('video_id', pymongo.DESCENDING).limit(1))[0]
+    return max_vid['video_id']
 
 
 # 写入数据库
@@ -64,7 +72,7 @@ def get_user_agent():
 
 
 def getpage(vid):
-    proxies = {'http': 'http://119.101.125.248', 'https': 'https://119.101.125.226'}
+    # proxies = {'http': 'http://119.101.125.248', 'https': 'https://119.101.125.226'}
     headers = {
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
         "accept-language": "zh-CN,zh;q=0.9,zh-TW;q=0.8,la;q=0.7,ko;q=0.6,en;q=0.5",
@@ -80,7 +88,6 @@ def getpage(vid):
     }
     baseurl = '{host}/video/{vid}/comments'.format(host=host, vid=vid)
 
-
     try:
         # response = requests.get(baseurl, headers=headers, proxies=proxies)
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
@@ -89,37 +96,40 @@ def getpage(vid):
         if response.status_code == 200:
             selector = html.fromstring(response.content)
 
-
-        # 分析页面获取数据
-        # for i in selector.xpath('//ul[@id="pins"]/li/a/@href'):
-        pre = selector.xpath('//pre[@vue-data="comments"]/text()')[0]
-        info = json.loads(pre)
-        return info
+            # 分析页面获取数据
+            # for i in selector.xpath('//ul[@id="pins"]/li/a/@href'):
+            pre = selector.xpath('//pre[@vue-data="comments"]/text()')[0]
+            info = json.loads(pre)
+            return info
     except:
+        pass
         return False
 
 
 # 持续调用
 def start(vid):
-    while 1:
+    print('current vid is: ', vid)
+    global flag
+    while True:
         res = getpage(vid)
-        # if vid < 150000:
-        #     print('======ended======')
-        #     break
-
+        flag += 1
         if res:
+            flag = 0
             print('-------- insert data-----------\n', res)
             insert_data(res)
+        elif flag > 100:
+            print('-------request failed, flag > 100 ----: ', res)
+            break
         else:
-            print('-------request failed ----: ', res)
-            pass
-        print('curent vid is: ', vid)
+            print('-------request failed ----flag: ', flag)
+
         vid += 1
         # time.sleep(random.randint(0,1))
         time.sleep(random.uniform(0, 0.02))
 
 
 if __name__ == '__main__':
-    v = int(get_last_vid())
+    # v = int(get_last_vid())
+    v = int(get_max_vid())
     start(v)
 
