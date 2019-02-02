@@ -21,7 +21,8 @@ document = db.wallpaper
 # get url
 def get_url():
     info = []
-    for result in document.find().sort('_id', pymongo.DESCENDING).limit(100):
+    # for result in document.find().sort('_id', pymongo.DESCENDING).limit(100):
+    for result in document.find().sort('_id', pymongo.DESCENDING):
         info.append(result)
     return info
 
@@ -55,6 +56,7 @@ def request_download():
         filename = '%s/%s.jpg' % (dirname, title)
         ir = requests.get(src, headers=headers)
         if ir.status_code == 200:
+            print('---download---', title)
             open(filename, 'wb').write(ir.content)
 
 

@@ -76,7 +76,7 @@ def get_page():
 
                 result = search(src)
                 if result:
-                    pass
+                    print('----this img had exists--- ', result['title'])
                 else:
                     info = {
                         'src': src,
@@ -88,7 +88,7 @@ def get_page():
                         'download': int(download[0] if len(download) else ''),
                         'append_date': datetime.now()
                     }
-                    print(info)
+                    print('-----new info---', info)
                     insert(info)
                     info.clear()
 
