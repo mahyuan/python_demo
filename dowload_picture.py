@@ -49,15 +49,17 @@ def request_download():
     for item in info:
         dirname = '/Users/mhy/Pictures/bing'
         src = item['src']
-        # 以title为文件名，但是title中有/字符，需要特殊处理不然会被识别成目录分割符
-        fulltitle = item['title']
-        title = re.sub(r'/', '&', fulltitle)
-        # filename = '%s/%s' % (dirname, src[24:])
-        filename = '%s/%s.jpg' % (dirname, title)
+        group = src.split(r'/')
+        url_str = re.sub(r'_\d+x\d+', '_1920x1080', group[len(group) - 1])
+        title = item['title']
+        title_str = re.split(r'(\(|\（)', title)[0].strip() + '_'
+        filename = title_str + url_str
+        fullname = '%s/%s' % (dirname, filename)
+
         ir = requests.get(src, headers=headers)
         if ir.status_code == 200:
-            print('---download---', title)
-            open(filename, 'wb').write(ir.content)
+            print('======filename===========', filename)
+            open(fullname, 'wb').write(ir.content)
 
 
 def remove_dir():
@@ -69,3 +71,4 @@ def remove_dir():
 
 if __name__ == '__main__':
     request_download()
+

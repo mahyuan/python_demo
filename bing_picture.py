@@ -65,14 +65,14 @@ def get_page():
             selector = html.fromstring(response.content)
             item_list = selector.xpath('//div[@class="container"]/div[@class="item"]')
             for i_item in item_list:
-                img = i_item.xpath('.//img/@src')[0]
+                src = i_item.xpath('.//img/@src')[0]
                 title = i_item.xpath('.//div[@class="description"]/h3/text()')
                 calendar = i_item.xpath('.//div[@class="description"]/*[@class="calendar"]/em/text()')
                 location = i_item.xpath('.//div[@class="description"]/*[@class="location"]/em/text()')
                 view = i_item.xpath('.//div[@class="description"]/*[@class="view"]/em/text()')
                 like = i_item.xpath('.//div[@class="options"]/span/@likes')
                 download = i_item.xpath('.//div[@class="options"]/a[2]/em/text()')
-                src = re.sub(r'_\d{3,4}x\d{3,4}', '_1920x1080', img)
+                # src = re.sub(r'_\d{3,4}x\d{3,4}', '_1920x1080', img)
 
                 result = search(src)
                 if result:
