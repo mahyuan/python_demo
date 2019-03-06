@@ -48,11 +48,14 @@ def request_download():
     info = get_url()
     for item in info:
         dirname = '/Users/mhy/Pictures/bing'
-        src = item['src']
+        src = re.sub(r'_\d+x\d+', '_1920x1080', item['src'])
         group = src.split(r'/')
-        url_str = re.sub(r'_\d+x\d+', '_1920x1080', group[len(group) - 1])
+        # url_str = re.sub(r'_\d+x\d+', '_1920x1080', group[len(group) - 1])
+        url_str = group[len(group) - 1]
+
         title = re.sub(r'\/', '&', item['title'])  # 有些title里面包含字符/，需要处理掉
         title_str = re.split(r'(\(|\（)', title)[0].strip() + '_'
+
         filename = title_str + url_str
         fullname = '%s/%s' % (dirname, filename)
 
