@@ -46,6 +46,7 @@ headers = {
 
 def request_download():
     info = get_url()
+    count = 0
     for item in info:
         dirname = '/Users/mhy/Pictures/bing'
         src = re.sub(r'_\d+x\d+', '_1920x1080', item['src'])
@@ -59,10 +60,17 @@ def request_download():
         filename = title_str + url_str
         fullname = '%s/%s' % (dirname, filename)
 
-        ir = requests.get(src, headers=headers)
-        if ir.status_code == 200:
-            print('----filename----', filename)
-            open(fullname, 'wb').write(ir.content)
+        # 判断文件是否已存在
+        isExists = os.path.isfile(fullname)
+        count += 1
+
+        if not isExists:
+            ir = requests.get(src, headers=headers)
+            if ir.status_code == 200:
+                print('----download file----', filename)
+                open(fullname, 'wb').write(ir.content)
+        else:
+            print('{},{},{}'.format(fullname, isExists, count))
 
 
 def remove_dir():
