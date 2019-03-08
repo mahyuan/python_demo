@@ -5,7 +5,7 @@ flod_work="/Users/mhy/private/python_demo/"
 log="/Users/mhy/logs/wallpaper.log"
 
 echo `date` >> ${log}
-echo -e "\033[31m-----------开始执行爬取数据脚本了-----------\033[0m" >> ${log}
+echo -e "\033[31m-----------开始执行爬取数据脚本了-----------\033[0m"
 
 if [ -d ${flod_home} ]; then
     fld=${flod_home}
