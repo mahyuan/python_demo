@@ -1,10 +1,13 @@
 #!/bin/bash
 
+# os x系统调整通知
+osascript -e 'display notification "Bing 爬虫开始执行" with title "通知" subtitle ""'
+
 flod_home="/Users/mhy/workspace/python_floder/python_demo"
 flod_work="/Users/mhy/private/python_demo/"
 log="/Users/mhy/logs/wallpaper.log"
 
-echo `date` >> ${log}
+echo `date '+%Y'/'%m'/'%d %H':'%M':'%S'` >> ${log}
 echo -e "\033[31m-----------开始执行爬取数据脚本了-----------\033[0m"
 
 if [ -d ${flod_home} ]; then
@@ -15,7 +18,6 @@ else
     echo "not exists this floader"
 fi
 
-
 echo '开始爬取新数据........'
 python3 "${fld}/bing_picture.py"
 if [ $? -eq 0 ]; then
@@ -24,5 +26,7 @@ if [ $? -eq 0 ]; then
 else
     echo  -e "\033[35m-----------爬取数据失败-----------\033[0m"
 fi
+
+osascript -e 'display notification "Bing 爬虫执行完了" with title "通知" subtitle ""'
 
 echo -e "\033[032m-----------下载图片完成了----------------\033[0m"
