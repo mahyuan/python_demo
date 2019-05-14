@@ -82,4 +82,3 @@ def remove_dir():
 
 if __name__ == '__main__':
     request_download()
-
