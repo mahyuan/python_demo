@@ -15,6 +15,7 @@ if [ -d ${flod_home} ]; then
 elif [ -d ${flod_work} ]; then
     fld=${flod_work}
 else
+    exit 0
     echo "not exists this floader"
 fi
 
