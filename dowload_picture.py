@@ -72,28 +72,31 @@ def request_download():
     count = 0
     for item in info:
         dirname = '/Users/mhy/Pictures/bing'
-        src = re.sub(r'_\d+x\d+', '_1920x1080', item['src'])
-        group = src.split(r'/')
-        # url_str = re.sub(r'_\d+x\d+', '_1920x1080', group[len(group) - 1])
-        url_str = group[len(group) - 1]
+        print('item------', item)
+        if 'src' in item.keys():
+            originUrl = item['src']
+            src = re.sub(r'_\d+x\d+', '_1920x1080', originUrl)
+            group = src.split(r'/')
+            # url_str = re.sub(r'_\d+x\d+', '_1920x1080', group[len(group) - 1])
+            url_str = group[len(group) - 1]
 
-        title = re.sub(r'\/', '&', item['title'])  # 有些title里面包含字符/，需要处理掉
-        title_str = re.split(r'(\(|\（)', title)[0].strip() + '_'
+            title = re.sub(r'\/', '&', item['title'])  # 有些title里面包含字符/，需要处理掉
+            title_str = re.split(r'(\(|\（)', title)[0].strip() + '_'
 
-        filename = title_str + url_str
-        fullname = '%s/%s' % (dirname, filename)
+            filename = title_str + url_str
+            fullname = '%s/%s' % (dirname, filename)
 
-        # 判断文件是否已存在
-        isExists = os.path.isfile(fullname)
-        count += 1
+            # 判断文件是否已存在
+            isExists = os.path.isfile(fullname)
+            count += 1
 
-        if not isExists:
-            ir = requests.get(src, headers=headers)
-            if ir.status_code == 200:
-                print('----download file----', filename)
-                open(fullname, 'wb').write(ir.content)
-        else:
-            print('{},{},{}'.format(fullname, isExists, count))
+            if not isExists:
+                ir = requests.get(src, headers=headers)
+                if ir.status_code == 200:
+                    print('----download file----', filename)
+                    open(fullname, 'wb').write(ir.content)
+            else:
+                print('{},{},{}'.format(fullname, isExists, count))
 
 
 def remove_dir():
