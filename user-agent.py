@@ -58,4 +58,5 @@ def getpage(vid):
 
 
 if __name__ == '__main__':
-    getpage(39393)
+    # getpage(39393)
+    get_user_agent()
