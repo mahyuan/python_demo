@@ -2,66 +2,66 @@
 # coding:utf-8
 
 import requests
+import re
 from lxml import html
 import pymongo
-import time
 import random
 from datetime import datetime
 import urllib3
-import re
-# import os
-# import sys
-# import signal
+import time
 
 
 host = 'https://h5.xiaohongchun.com'
 
-# 连接数据库
 client = pymongo.MongoClient(host='127.0.0.1', port=27017)
-# 指定数据库
 db = client.xhc
-# 指定集合
-collname = db.video_info
-coll_no_exists = db.video_not_exists
 
-flag = 0
+video_collection = db.video_info
+video_notexists_collection = db.video_not_exists
 
 
-# 获取最后插入的数据
-def get_last_vid():
-    # db.getCollection('video_info').find().sort({vid: 1})
-    last = list(collname.find().sort("vid", pymongo.DESCENDING).limit(1))[0]  # ASCENDING 升序; DESCENDING: 降序
-    return last['vid']
+# 获取最新的一个不存在记录
+def get_next_vid():
+    last = list(video_notexists_collection.find().sort("vid", pymongo.DESCENDING).limit(1))[0]
+    if 'vid' in last:
+        return last
+    else:
+        return None
 
 
-# 获取最新视频，从数据库查找上video_id最大的，之后的视频就是没有爬到的最新数据
-def get_max_vid():
-    max_vid = list(collname.find().sort('vid', pymongo.DESCENDING).limit(1))[0]
-    return max_vid['vid']
-
-
-# 根据vid查找数据
-def search_byvid(vid):
-    result = collname.find_one({'vid': vid}, {'vid': 1})
-    return result
+# 删除不存在记录
+def remove_not_exists_vid(vid):
+    res = video_notexists_collection.delete_many({'vid': vid})
+    print('---delete vid is-----:', vid)
+    return res
 
 
 # 写入数据库
 def insert_data(info):
-    result = collname.insert_one(info)
+    result = video_collection.insert_one(info)
     print('--insert data result----', result)
 
 
-# 插入多条数据，提高插入性能
-def insert_many_data(info):
-    result = collname.insert_many(info)
-    print('------result-----', result)
+def start():
+    try:
+        while True:
+            result = get_next_vid()
 
-
-# 没有请求到的vid存入库
-def insert_vid(vid):
-    result = coll_no_exists.insert_one({'vid': vid})
-    print('---insert vid result---', result)
+            if 'vid' in result:
+                vid = result['vid']
+                print('----vid----', vid)
+                info = getpage(vid)
+                if info:
+                    insert_data(info)
+                else:
+                    print('----info not exists---', info)
+                remove_not_exists_vid(vid)
+            else:
+                print('------没有数据了--------')
+                break
+            time.sleep(random.uniform(0, 0.005))
+    except KeyboardInterrupt:
+        return False
 
 
 # 获取随机手机 user_agents
@@ -156,67 +156,6 @@ def getpage(vid):
         return False
 
 
-# 持续调用
-def start(vid):
-    print('current vid is: ', vid)
-    li = []
-    global flag
-    while True:
-        res = getpage(vid)
-        if res:
-            flag = 0
-            data = search_byvid(vid)
-            if data is None:
-                li.append(res)
-
-            print('-------res-----', res)
-            if len(li) > 100:
-                # print('---------data--------', li)
-                insert_many_data(li)
-                li.clear()
-        else:
-            print('-------res----:', res)
-            flag += 1
-            if flag > 100:
-                if len(li) > 0:
-                    insert_many_data(li)
-                    li.clear()
-                print('------爬不到数据了--------')
-                break
-        # time.sleep(random.randint(0, 1))
-        time.sleep(random.uniform(0, 0.005))
-        vid += 1
-
-
-# 依次查询没有的数据
-def loop():
-    min_val, max_val = 12877, 345954
-    key = max_val
-
-    # 设置一个变量，如果返回的数据为空就自增，返回数据就清零，自增至大于100，可以认定没有数据了，退出循环
-    while True:
-        # 查询数据库，不存在的就请求，请求失败把vid存入vid表，存在的数据插入video表
-        data = search_byvid(key)
-        # print('vid: {vid}, data: {data}'.format(vid=key, data=data))
-        if data:
-            print('---db has data----:', data)
-        else:
-            time.sleep(0.0001)
-            res = getpage(key)
-            print('---res from request---', res)
-            if res:
-                # print('---res from exits---', res)
-                insert_data(res)
-            else:
-                # print('---res form page not exists----', res)
-                insert_vid(key)
-
-        key += 1
-        print('---------------------------------------------on loop end------vid---------------------', key)
-
-
 if __name__ == '__main__':
-    # v = int(get_last_vid())
-    v = int(get_max_vid())
-    start(v + 1)
-    # loop()
+    start()
+
