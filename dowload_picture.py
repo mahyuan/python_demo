@@ -40,11 +40,12 @@ def get_user_agent():
     user_agent = random.choice(user_agents)
     return user_agent
 
+
 # get url
 def get_url():
     info = []
     # for result in document.find().sort('_id', pymongo.DESCENDING).limit(100):
-    for result in document.find().sort('_id', pymongo.DESCENDING):
+    for result in document.find({}, {'src': 1, 'title': 1}).sort('_id', pymongo.DESCENDING):
         info.append(result)
     return info
 
