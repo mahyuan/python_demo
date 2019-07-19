@@ -92,6 +92,7 @@ def getpage(vid):
     headers = {
         "method": "GET",
         "scheme": "https",
+        'Connection': 'close',
         # ":path": "/video?vid=346047",
         "authority": "h5.xiaohongchun.com",
         # "cookie": "session_id=6677d9388eca4323a5d241a3424bae91",
@@ -217,6 +218,6 @@ def loop():
 
 if __name__ == '__main__':
     # v = int(get_last_vid())
-    v = int(get_max_vid())
-    start(v + 1)
+    v = int(get_max_vid()) + 1
+    start(v)
     # loop()
