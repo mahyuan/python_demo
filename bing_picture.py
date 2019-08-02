@@ -75,15 +75,17 @@ def get_page():
 
     baseurl = 'https://bing.ioliu.cn'
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    response = requests.get(baseurl, headers=headers)
+    response = requests.get(baseurl, headers=headers, verify=False)
     if response.status_code == 200:
         selector = html.fromstring(response.content)
         text = selector.xpath('//div[@class="page"]/span/text()')[0]
         total = int(text.split('/')[1])
+        print('total page: ', total)
     for pagesize in range(1, total):
         time.sleep(random.uniform(0, 0.005))
-        baseurl = 'https://bing.ioliu.cn?p={pagesize}'.format(pagesize=str(pagesize))
-        response = requests.get(baseurl, headers=headers)
+        base_url = 'https://bing.ioliu.cn?p={pagesize}'.format(pagesize=str(pagesize))
+        response = requests.get(base_url, headers=headers, verify=False)
+        print('----pagesize: {pagesize}, --response-: {response} '.format(pagesize=pagesize, response=response))
         if response.status_code == 200:
             selector = html.fromstring(response.content)
             item_list = selector.xpath('//div[@class="container"]/div[@class="item"]')
