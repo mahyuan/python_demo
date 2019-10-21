@@ -73,7 +73,7 @@ def request_download():
     count = 0
     for item in info:
         dirname = '/Users/mhy/Pictures/bing'
-        print('item------', item)
+        print('--item-', item)
         if 'src' in item.keys():
             origin_url = item['src']
             src = re.sub(r'_\d+x\d+', '_1920x1080', origin_url)
@@ -97,7 +97,7 @@ def request_download():
                     print('----download file----', filename)
                     open(fullname, 'wb').write(ir.content)
             else:
-                print('{},{},{}'.format(fullname, is_exists, count))
+                print('path: {}, is_exists: {}, count: {}'.format(fullname, is_exists, count))
 
 
 def remove_dir():

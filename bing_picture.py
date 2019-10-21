@@ -81,6 +81,10 @@ def get_page():
         text = selector.xpath('//div[@class="page"]/span/text()')[0]
         total = int(text.split('/')[1])
         print('total page: ', total)
+    else:
+        print('response code not 200')
+        total = 0
+        
     for pagesize in range(1, total):
         time.sleep(random.uniform(0, 0.005))
         base_url = 'https://bing.ioliu.cn?p={pagesize}'.format(pagesize=str(pagesize))
