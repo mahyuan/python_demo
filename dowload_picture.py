@@ -74,6 +74,8 @@ def request_download():
     for item in info:
         dirname = '/Users/mhy/Pictures/bing'
         print('--item-', item)
+        suffix = "?imageslim";
+
         if 'src' in item.keys():
             origin_url = item['src']
             src = re.sub(r'_\d+x\d+', '_1920x1080', origin_url)
@@ -82,6 +84,9 @@ def request_download():
             url_str = group[len(group) - 1]
 
             title = re.sub(r'\/', '&', item['title'])  # 有些title里面包含字符/，需要处理掉
+
+            url_str = re.sub(r'\?imageslim', '', url_str) if url_str.endswith(suffix) else url_str
+
             title_str = re.split(r'(\(|\（)', title)[0].strip() + '_'
 
             filename = title_str + url_str
