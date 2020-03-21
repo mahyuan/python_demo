@@ -37,8 +37,14 @@ def get_last_vid():
 
 # 获取最新视频，从数据库查找上video_id最大的，之后的视频就是没有爬到的最新数据
 def get_max_vid():
-    max_vid = list(collname.find().sort('vid', pymongo.DESCENDING).limit(1))[0]
-    return max_vid['vid']
+    # 获取最新视频，从数据库查找上video_id最大的，之后的视频就是没有爬到的最新数据
+
+    result = collname.find().sort('video_id', pymongo.DESCENDING).limit(1)
+    # print('----result----', isinstance(result, list))
+    if isinstance(result, list):
+        return result[0]['vid']
+    else:
+        return 352541
 
 
 # 根据vid查找数据
@@ -47,22 +53,22 @@ def search_byvid(vid):
     return result
 
 
-# 写入数据库
+# 单条数据写入数据库
 def insert_data(info):
     result = collname.insert_one(info)
-    print('--insert data result----', result)
+    # print('--insert data result----', result)
 
 
 # 插入多条数据，提高插入性能
 def insert_many_data(info):
     result = collname.insert_many(info)
-    print('------result-----', result)
+    # print('------result-----', result)
 
 
 # 没有请求到的vid存入库
 def insert_vid(vid):
     result = coll_no_exists.insert_one({'vid': vid})
-    print('---insert vid result---', result)
+    # print('---insert vid result---', result)
 
 
 # 获取随机手机 user_agents
@@ -157,42 +163,59 @@ def getpage(vid):
     except KeyboardInterrupt:
         return False
 
+# 获取下一个vid
+def getNextVid(vid, isIncreasing):
+    # print('---isIncreasing---', vid)
+    if isIncreasing == 1:
+        vid += 1
+    else:
+        vid -= 1
+    return vid
 
 # 持续调用
-def start(vid):
+def start(vid, isIncreasing):
     print('current vid is: ', vid)
     li = []
+    videoid = vid
     global flag
-    while True:
-        res = getpage(vid)
-        if res:
-            flag = 0
-            data = search_byvid(vid)
-            if data is None:
-                li.append(res)
+    while flag < 100:
+        try:
+            dbData = search_byvid(videoid)
+            if dbData is None:
+                res = getpage(videoid)
+                print('---res---', res)
+                if res:
+                    flag = 0
+                    li.append(res)
+                    if len(li) > 20:
+                        insert_many_data(li)
+                        li.clear()
+                else:
+                    flag += 1
+                    if flag > 20:
+                        if len(li) > 0:
+                            insert_many_data(li)
+                            li.clear()
+                            print('----没有数据了----')
+                            break
+                time.sleep(random.uniform(5,10))
+                videoid = getNextVid(videoid, isIncreasing)
+            else:
+                print('---db has this vidoe info--', dbData)
+                time.sleep(random.uniform(0, 0.5))
+                videoid = getNextVid(videoid, isIncreasing)
 
-            print('-------res-----', res)
-            if len(li) > 100:
-                # print('---------data--------', li)
-                insert_many_data(li)
-                li.clear()
-        else:
-            print('-------res----:', res)
-            flag += 1
-            if flag > 100:
-                if len(li) > 0:
-                    insert_many_data(li)
-                    li.clear()
-                print('------爬不到数据了--------')
-                break
-        # time.sleep(random.randint(0, 1))
-        time.sleep(random.uniform(5, 10))
-        vid += 1
+
+        except KeyboardInterrupt:
+            insert_many_data(li)
+            li.clear()
+            pass
+
 
 
 # 依次查询没有的数据
 def loop():
-    min_val, max_val = 12877, 345954
+    min_val, max_val = 12877, 352469
     key = max_val
 
     # 设置一个变量，如果返回的数据为空就自增，返回数据就清零，自增至大于100，可以认定没有数据了，退出循环
@@ -219,6 +242,9 @@ def loop():
 
 if __name__ == '__main__':
     # v = int(get_last_vid())
-    v = int(get_max_vid()) + 1
-    start(v)
-    # loop()
+    maxVid = get_max_vid()
+    if isinstance(maxVid, int):
+        vid = maxVid - 1
+        start(vid, 0) # vid 递增： 1， 递减： 0
+    else:
+        print('--数据库为空---')
