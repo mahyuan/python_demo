@@ -12,7 +12,8 @@ import random
 
 
 # 连接数据库
-client = pymongo.MongoClient(host='127.0.0.1', port=27017)
+# client = pymongo.MongoClient(host='127.0.0.1', port=27017)
+client = pymongo.MongoClient(host='121.36.170.117', port=27017) # huaweiyun
 # 指定数据库
 db = client.lagou
 # 指定集合
@@ -69,7 +70,7 @@ def get_page():
         text = selector.xpath('//div[@class="page"]/span/text()')[0]
         total = int(text.split('/')[1])
     for pagesize in range(1, total):
-        time.sleep(random.uniform(0, 0.005))
+        time.sleep(random.uniform(3, 8))
         baseurl = 'https://bing.ioliu.cn?p={pagesize}'.format(pagesize=str(pagesize))
         response = requests.get(baseurl, headers=headers)
         if response.status_code == 200:

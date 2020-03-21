@@ -13,7 +13,8 @@ def quit(signum, frame):
 
 
 # 连接MongoDB数据库
-client = pymongo.MongoClient(host='127.0.0.1', port=27017)
+# client = pymongo.MongoClient(host='127.0.0.1', port=27017)
+client = pymongo.MongoClient(host='121.36.170.117', port=27017) # huaweiyun
 # or
 # client = MongoClient('mongodb://localhost:27017/')
 

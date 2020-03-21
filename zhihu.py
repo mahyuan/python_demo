@@ -18,6 +18,7 @@ import ssl
 from urllib.parse import urlsplit
 from os.path import basename
 
+
 # 全局禁用证书验证
 ssl._create_default_https_context = ssl._create_unverified_context
 

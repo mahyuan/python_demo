@@ -17,7 +17,8 @@ import re
 host = 'https://h5.xiaohongchun.com'
 
 # 连接数据库
-client = pymongo.MongoClient(host='127.0.0.1', port=27017)
+# client = pymongo.MongoClient(host='127.0.0.1', port=27017)
+client = pymongo.MongoClient(host='121.36.170.117', port=27017) # huaweiyun
 # 指定数据库
 db = client.xhc
 # 指定集合
@@ -185,7 +186,7 @@ def start(vid):
                 print('------爬不到数据了--------')
                 break
         # time.sleep(random.randint(0, 1))
-        time.sleep(random.uniform(0, 0.005))
+        time.sleep(random.uniform(5, 10))
         vid += 1
 
 

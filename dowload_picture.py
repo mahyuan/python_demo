@@ -12,7 +12,9 @@ import random
 # from bs4 import BeautifulSoup
 
 # 连接数据库
-client = pymongo.MongoClient(host='127.0.0.1', port=27017)
+# client = pymongo.MongoClient(host='127.0.0.1', port=27017)
+client = pymongo.MongoClient(host='121.36.170.117', port=27017) # huaweiyun
+
 # 指定数据库
 db = client.bing
 # 指定集合

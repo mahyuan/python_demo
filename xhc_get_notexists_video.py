@@ -13,7 +13,8 @@ import time
 
 host = 'https://h5.xiaohongchun.com'
 
-client = pymongo.MongoClient(host='127.0.0.1', port=27017)
+# client = pymongo.MongoClient(host='127.0.0.1', port=27017)
+client = pymongo.MongoClient(host='121.36.170.117', port=27017) # huaweiyun
 db = client.xhc
 
 video_collection = db.video_info
@@ -59,7 +60,7 @@ def start():
             else:
                 print('------没有数据了--------')
                 break
-            time.sleep(random.uniform(0, 0.005))
+            time.sleep(random.uniform(5, 15))
     except KeyboardInterrupt:
         return False
 
