@@ -149,7 +149,6 @@ if __name__ == '__main__':
     # v = int(get_last_vid())
     maxVid = get_max_vid()
     if isinstance(maxVid, int):
-        # v = maxVid + 1
-        start(v, 0)
+        start(maxVid, 0)
     else:
         print('--数据库为空---')
