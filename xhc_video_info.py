@@ -102,6 +102,7 @@ def getpage(vid):
         'Connection': 'close',
         # ":path": "/video?vid=346047",
         "authority": "h5.xiaohongchun.com",
+        "Referer": "h5.xiaohongchun.com",
         # "cookie": "session_id=6677d9388eca4323a5d241a3424bae91",
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         "upgrade-insecure-requests": "1",

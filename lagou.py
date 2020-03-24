@@ -7,13 +7,14 @@ import time
 import os
 from fake_useragent import UserAgent
 import re
+import urllib3
 import random
 # from bs4 import BeautifulSoup
 
 
 # 连接数据库
 # client = pymongo.MongoClient(host='127.0.0.1', port=27017)
-client = pymongo.MongoClient(host='121.36.170.117', port=27017) # huaweiyun
+client = pymongo.MongoClient(host='121.36.170.117', port=27017) # tx
 # 指定数据库
 db = client.lagou
 # 指定集合
