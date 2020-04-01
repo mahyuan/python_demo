@@ -42,7 +42,7 @@ def get_limit_vid(order):
     if order > 0:
         result = list(collname.find().sort('vid', pymongo.AESCENDING).limit(1))
     else:
-        result = list(collname.find().sort('vid', pymongo.DSCENDING).limit(1))
+        result = list(collname.find().sort('vid', pymongo.DESCENDING).limit(1))
 
     if isinstance(result, list):
         return result[0]['vid']
