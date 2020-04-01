@@ -17,8 +17,8 @@ import re
 host = 'https://h5.xiaohongchun.com'
 
 # 连接数据库
-# client = pymongo.MongoClient(host='127.0.0.1', port=27017)
-client = pymongo.MongoClient(host='121.36.170.117', port=27017) # huaweiyun
+client = pymongo.MongoClient(host='127.0.0.1', port=27017)
+# client = pymongo.MongoClient(host='121.36.170.117', port=27017) # huaweiyun
 # 指定数据库
 db = client.xhc
 # 指定集合
@@ -36,15 +36,17 @@ def get_last_vid():
 
 
 # 获取最新视频，从数据库查找上video_id最大的，之后的视频就是没有爬到的最新数据
-def get_max_vid():
-    # 获取最新视频，从数据库查找上video_id最大的，之后的视频就是没有爬到的最新数据
+def get_limit_vid(order):
+    # 获取最新视频，从数据库查找上vid最大的，之后的视频就是没有爬到的最新数据
+    if order > 0:
+        result = list(collname.find().sort('vid', pymongo.DESCENDING).limit(1))
+    else:
+        result = list(collname.find().sort('vid', pymongo.ASCENDING).limit(1))
 
-    result = collname.find().sort('video_id', pymongo.DESCENDING).limit(1)
-    # print('----result----', isinstance(result, list))
     if isinstance(result, list):
         return result[0]['vid']
     else:
-        return 352541
+        return None
 
 
 # 根据vid查找数据
@@ -164,14 +166,15 @@ def getpage(vid):
     except KeyboardInterrupt:
         return False
 
+
 # 获取下一个vid
 def getNextVid(vid, isIncreasing):
-    # print('---isIncreasing---', vid)
-    if isIncreasing == 1:
+    if isIncreasing > 0:
         vid += 1
     else:
         vid -= 1
     return vid
+
 
 # 持续调用
 def start(vid, isIncreasing):
@@ -243,9 +246,13 @@ def loop():
 
 if __name__ == '__main__':
     # v = int(get_last_vid())
-    maxVid = get_max_vid()
+    # 最大：1, 最小： 0
+    order = 0
+    maxVid = get_limit_vid(order)
     if isinstance(maxVid, int):
         vid = maxVid - 1
-        start(vid, 0) # vid 递增： 1， 递减： 0
+        # order 递增： 1， 递减： 0
+        start(vid, order)
+
     else:
         print('--数据库为空---')
