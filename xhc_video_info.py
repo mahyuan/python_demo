@@ -201,7 +201,7 @@ def start(vid, isIncreasing):
                         li.clear()
                 else:
                     flag += 1
-                    if flag > 20:
+                    if flag > 200:
                         if len(li) > 0:
                             insert_many_data(li)
                             li.clear()
