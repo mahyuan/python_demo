@@ -38,14 +38,18 @@ def get_last_vid():
 
 
 # 获取最新视频，从数据库查找上video_id最大的，之后的视频就是没有爬到的最新数据
-def get_max_vid():
-    # 获取最新视频，从数据库查找上video_id最大的，之后的视频就是没有爬到的最新数据
-    result = collname.find().sort('video_id', pymongo.DESCENDING).limit(1)
-    print('----result----', isinstance(result, list))
-    if isinstance(result, list):
-        return result[0]['vid']
+def get_max_vid(order):
+    # 获取最新视频，从数据库查找上vid最大的，之后的视频就是没有爬到的最新数据
+    # ASCENDING 升序; DESCENDING: 降序
+    if order > 0:
+        result = list(collname.find().sort('video_id', pymongo.AESCENDING).limit(1))
     else:
-        return 352541
+        result = list(collname.find().sort('video_id', pymongo.DESCENDING).limit(1))
+
+    if isinstance(result, list):
+        return result[0]['video_id']
+    else:
+        return None
 
 
 # 写入数据库
@@ -115,7 +119,7 @@ def getpage(vid):
 # 获取下一个vid
 def getNextVid(vid, isIncreasing):
     # print('---isIncreasing---', vid)
-    if isIncreasing == 1:
+    if isIncreasing > 0:
         vid += 1
     else:
         vid -= 1
@@ -147,9 +151,10 @@ def start(vid, isIncreasing):
 
 if __name__ == '__main__':
     # v = int(get_last_vid())
-    maxVid = get_max_vid()
+    # order 递增： 1， 递减： 0
+    order = 0
+    maxVid = get_max_vid(order)
     if isinstance(maxVid, int):
-        # v = maxVid + 1
-        start(v, 0)
+        start(maxVid, order)
     else:
         print('--数据库为空---')
