@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # -*- coding:utf-8 -*-
 
 #  此文件除本行注释之外，都是复制自知乎，仅用于学习爬虫， https://www.zhihu.com/people/lw900925/answers

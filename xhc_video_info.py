@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python3
 # coding:utf-8
 
 import requests
@@ -17,8 +17,8 @@ import re
 host = 'https://h5.xiaohongchun.com'
 
 # 连接数据库
-# client = pymongo.MongoClient(host='127.0.0.1', port=27017)
-client = pymongo.MongoClient(host='121.36.170.117', port=27017) # huaweiyun
+client = pymongo.MongoClient(host='127.0.0.1', port=27017)
+# client = pymongo.MongoClient(host='121.36.170.117', port=27017) # huaweiyun
 # 指定数据库
 db = client.xhc
 # 指定集合
@@ -40,7 +40,7 @@ def get_limit_vid(order):
     # 获取最新视频，从数据库查找上vid最大的，之后的视频就是没有爬到的最新数据
     # ASCENDING 升序; DESCENDING: 降序
     if order > 0:
-        result = list(collname.find().sort('vid', pymongo.AESCENDING).limit(1))
+        result = list(collname.find().sort('vid', pymongo.ASCENDING).limit(1))
     else:
         result = list(collname.find().sort('vid', pymongo.DESCENDING).limit(1))
 
@@ -59,6 +59,7 @@ def search_byvid(vid):
 # 单条数据写入数据库
 def insert_data(info):
     result = collname.insert_one(info)
+    return result
     # print('--insert data result----', result)
 
 
@@ -66,12 +67,14 @@ def insert_data(info):
 def insert_many_data(info):
     result = collname.insert_many(info)
     # print('------result-----', result)
+    return result
 
 
 # 没有请求到的vid存入库
 def insert_vid(vid):
     result = coll_no_exists.insert_one({'vid': vid})
     # print('---insert vid result---', result)
+    return result
 
 
 # 获取随机手机 user_agents
@@ -135,7 +138,7 @@ def getpage(vid):
                 time = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "middle-")]/span/text()')
                 totalCount = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "middle-")]/span/text()')
                 # 提取播放量中的数字 "1580次播放"
-                view_count = int(re.sub("\D", "", totalCount[1])) if len(totalCount) else ''
+                view_count = int(re.sub(r"\D", "", totalCount[1])) if len(totalCount) else ''
                 # title
                 title = selector.xpath('//div[starts-with(@class, "video_detail-")]/div[starts-with(@class, "title-")]/text()')
                 # 描述
@@ -146,6 +149,7 @@ def getpage(vid):
                 collection = selector.xpath('//span[starts-with(@class, "collect-")]/text()')
                 # print('title', title)
 
+                print('---view_count--', view_count)
                 # 数据组装成字典
                 info = {
                     # title[0] if len(title) else ''
@@ -215,34 +219,6 @@ def start(vid, isIncreasing):
             insert_many_data(li)
             li.clear()
             pass
-
-
-
-# 依次查询没有的数据
-def loop():
-    min_val, max_val = 12877, 352469
-    key = max_val
-
-    # 设置一个变量，如果返回的数据为空就自增，返回数据就清零，自增至大于100，可以认定没有数据了，退出循环
-    while True:
-        # 查询数据库，不存在的就请求，请求失败把vid存入vid表，存在的数据插入video表
-        data = search_byvid(key)
-        # print('vid: {vid}, data: {data}'.format(vid=key, data=data))
-        if data:
-            print('---db has data----:', data)
-        else:
-            time.sleep(0.0001)
-            res = getpage(key)
-            print('---res from request---', res)
-            if res:
-                # print('---res from exits---', res)
-                insert_data(res)
-            else:
-                # print('---res form page not exists----', res)
-                insert_vid(key)
-
-        key += 1
-        print('---------------------------------------------on loop end------vid---------------------', key)
 
 
 if __name__ == '__main__':

@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
 import requests
@@ -85,7 +85,7 @@ def get_page():
     else:
         print('response code not 200')
         total = 0
-        
+
     for pagesize in range(1, total):
         time.sleep(random.uniform(0, 0.005))
         base_url = 'https://bing.ioliu.cn?p={pagesize}'.format(pagesize=str(pagesize))

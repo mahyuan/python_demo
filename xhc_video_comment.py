@@ -1,4 +1,5 @@
-#!/usr/bin/python3
+
+#!/usr/bin/env python3
 # -* coding: UTF-8 -*-
 
 import requests
@@ -42,7 +43,7 @@ def get_max_vid(order):
     # 获取最新视频，从数据库查找上vid最大的，之后的视频就是没有爬到的最新数据
     # ASCENDING 升序; DESCENDING: 降序
     if order > 0:
-        result = list(collname.find().sort('video_id', pymongo.AESCENDING).limit(1))
+        result = list(collname.find().sort('video_id', pymongo.ASCENDING).limit(1))
     else:
         result = list(collname.find().sort('video_id', pymongo.DESCENDING).limit(1))
 
