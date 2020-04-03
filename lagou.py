@@ -10,7 +10,7 @@ import re
 import urllib3
 import random
 # from bs4 import BeautifulSoup
-
+from lxml import html
 
 # 连接数据库
 # client = pymongo.MongoClient(host='127.0.0.1', port=27017)

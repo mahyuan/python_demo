@@ -1,17 +1,15 @@
 #!/usr/bin/env python3
 # coding:utf-8
 
-import requests
-from lxml import html
+from fake_useragent import UserAgent
 import random
-from datetime import datetime
-import time
-import urllib
 
+def getua():
+    ua = UserAgent().random
+    return ua
 
-host = 'https://h5.xiaohongchun.com'
 def get_user_agent():
-    user_agents =  [
+    user_agents = [
         "Mozilla/5.0 (Linux; U; Android 8.1.0; zh-cn; BLA-AL00 Build/HUAWEIBLA-AL00) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/57.0.2987.132 MQQBrowser/8.9 Mobile Safari/537.36",
         "Mozilla/5.0 (iPhone 6s; CPU iPhone OS 11_4_1 like Mac OS X) AppleWebKit/604.3.5 (KHTML, like Gecko) Version/11.0 MQQBrowser/8.3.0 Mobile/15B87 Safari/604.1 MttCustomUA/2 QBWebViewType/1 WKType/1",
         "Mozilla/5.0 (iPhone; CPU iPhone OS 12_1_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko Version/12.0 ,Mobile/15E148 Safari/604.1",
@@ -30,33 +28,3 @@ def get_user_agent():
     ]
     user_agent = random.choice(user_agents)
     return user_agent
-
-proxies = {
-    '119.101.125.1',
-    '119.101.125.140',
-}
-
-
-def getpage(vid):
-    proxies = {'http': 'http://119.90.126.106', 'https': 'https://119.101.125.226'}
-    headers = {
-        "method": "GET",
-        "scheme": "https",
-        # ":path": "/video?vid=346047",
-        "authority": "h5.xiaohongchun.com",
-        # "cookie": "session_id=6677d9388eca4323a5d241a3424bae91",
-        "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-        "upgrade-insecure-requests": "1",
-        "User-Agent": get_user_agent(),
-        "accept-language": "zh-cn",
-        "accept-encoding": "br, gzip, deflate"
-    }
-    baseurl = '{host}/video?vid={vid}'.format(host=host, vid=vid)
-    response = requests.get(baseurl, headers=headers, proxies=proxies)
-    # response = requests.get(baseurl, headers=headers)
-    print(response)
-
-
-if __name__ == '__main__':
-    # getpage(39393)
-    get_user_agent()
