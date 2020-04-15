@@ -58,6 +58,9 @@ def getPage(src, referer):
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
     requests.adapters.DEFAULT_RETRIES = 5 # 增加重连次数
     request = requests.session()
+    # 免费代理
+    # https://www.zdaye.com/shanghai_ip.html#Free
+    request.proxies = {"https": "117.144.188.207:3128", "http": "101.132.226.199:8080", }
     request.keep_alive = False # 关闭多余连接
     response = request.get(src, headers=headers)
     if response.status_code == 200:
