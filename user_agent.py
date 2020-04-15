@@ -5,7 +5,7 @@ from fake_useragent import UserAgent
 import random
 
 def getua():
-    ua = UserAgent().random
+    ua = UserAgent(verify_ssl=False).random
     return ua
 
 def get_user_agent():

@@ -209,7 +209,7 @@ def main():
         # 爬取文章内容
         for item in articleList:
             src = item['src']
-            time.sleep(random.uniform(3, 8))
+            time.sleep(random.uniform(10, 15))
             article = getArticle(src)
             insertArticle(article)
 
