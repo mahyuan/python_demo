@@ -153,7 +153,7 @@ def start(vid, isIncreasing):
 if __name__ == '__main__':
     # v = int(get_last_vid())
     # order 递增： 1， 递减： 0
-    order = 0
+    order = 1 
     maxVid = get_max_vid(order)
     if isinstance(maxVid, int):
         start(maxVid, order)

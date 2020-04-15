@@ -224,7 +224,7 @@ def start(vid, isIncreasing):
 if __name__ == '__main__':
     # v = int(get_last_vid())
     # 最大：1, 最小： 0
-    order = 0
+    order = 1
     maxVid = get_limit_vid(order)
     if isinstance(maxVid, int):
         vid = maxVid - 1
