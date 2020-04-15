@@ -56,7 +56,10 @@ def getPage(src, referer):
         "accept-encoding": "br, gzip, deflate"
     }
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-    response = requests.get(src, headers=headers)
+    requests.adapters.DEFAULT_RETRIES = 5 # 增加重连次数
+    request = requests.session()
+    request.keep_alive = False # 关闭多余连接
+    response = request.get(src, headers=headers)
     if response.status_code == 200:
         return response.content
     else:
