@@ -18,8 +18,8 @@ import user_agent
 host = 'https://h5.xiaohongchun.com'
 
 # 连接数据库
-client = pymongo.MongoClient(host='127.0.0.1', port=27017)
-# client = pymongo.MongoClient(host='121.36.170.117', port=27017) # huaweiyun
+# client = pymongo.MongoClient(host='127.0.0.1', port=27017)
+client = pymongo.MongoClient(host='121.36.170.117', port=27017) # huaweiyun
 # 指定数据库
 db = client.xhc
 # 指定集合
@@ -41,9 +41,9 @@ def get_limit_vid(order):
     # 获取最新视频，从数据库查找上vid最大的，之后的视频就是没有爬到的最新数据
     # ASCENDING 升序; DESCENDING: 降序
     if order > 0:
-        result = list(collname.find().sort('vid', pymongo.ASCENDING).limit(1))
-    else:
         result = list(collname.find().sort('vid', pymongo.DESCENDING).limit(1))
+    else:
+        result = list(collname.find().sort('vid', pymongo.ASCENDING).limit(1))
 
     if isinstance(result, list):
         return result[0]['vid']
@@ -127,7 +127,9 @@ def getpage(vid):
                 collection = selector.xpath('//span[starts-with(@class, "collect-")]/text()')
                 # print('title', title)
 
-                print('---view_count--', view_count)
+                collectInt = int(collection[0]) if len(collection) and collection[0] != '收藏' else 0
+                likeInt = int(like[0]) if len(like) and like[0] != '喜欢' else 0
+
                 # 数据组装成字典
                 info = {
                     # title[0] if len(title) else ''
@@ -141,8 +143,8 @@ def getpage(vid):
                     'view_count': view_count,
                     'title': title[0] if len(title) else '',
                     'desc': desc[0] if len(desc) else '',
-                    'like': like[0] if len(like) else '',
-                    'collection': collection[0] if len(collection) else '',
+                    'like': likeInt,
+                    'collection': collectInt,
                     'create_time': datetime.now()
                 }
                 return info
@@ -204,6 +206,7 @@ if __name__ == '__main__':
     # 最大：1, 最小： 0
     order = 1
     maxVid = get_limit_vid(order)
+    print('---start at---', maxVid)
     if isinstance(maxVid, int):
         vid = maxVid - 1
         # order 递增： 1， 递减： 0
