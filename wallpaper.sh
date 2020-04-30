@@ -1,10 +1,12 @@
 #!/bin/bash
 
+# 执行必应壁纸爬取和下载的脚本，可以配合crontab
+
 # os x系统调整通知
 osascript -e 'display notification "Bing 爬虫开始执行" with title "通知" subtitle ""'
 
-flod_home="/Users/mhy/workspace/python_floder/python_demo"
-flod_work="/Users/mhy/private/python_demo/"
+flod_home="/Users/mhy/workspace/python_floder/python_demo/bing"
+flod_work="/Users/mhy/private/python_demo/bing"
 log="/Users/mhy/logs/wallpaper.log"
 
 date '+%Y'/'%m'/'%d %H':'%M':'%S'': wallpaper' | tee -a -i ${log}
