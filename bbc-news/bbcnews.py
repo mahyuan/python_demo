@@ -11,12 +11,19 @@ import re
 import time
 import random
 import json
+import os
+import configparser
 # json.dumps(): 对数据进行编码。
 # json.loads(): 对数据进行解码。
 
-# 连接数据库
-# client = pymongo.MongoClient(host='127.0.0.1', port=27017)
-client = pymongo.MongoClient(host='121.36.170.117', port=27017) # huaweiyun
+
+
+CONFIG_PATH = os.environ['MONGO_CONFIG_PATH']
+config = configparser.ConfigParser()
+config.read(CONFIG_PATH)
+
+dburl = 'mongodb://{user}:{password}@{host}:{port}'.format(user = config['MONGODB']['USER'], password = config['MONGODB']['PASSWORD'], host=config['MONGODB']['HOST'],port = config['MONGODB']['PORT'] )
+client = pymongo.MongoClient(dburl)
 
 # 指定数据库
 db = client.bbc

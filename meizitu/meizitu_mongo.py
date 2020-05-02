@@ -6,17 +6,19 @@ from lxml import html
 import pymongo
 import signal
 from datetime import datetime
-
+import os
+import configparser
 
 def quit(signum, frame):
     sys.exit()
 
+CONFIG_PATH = os.environ['MONGO_CONFIG_PATH']
+config = configparser.ConfigParser()
+config.read(CONFIG_PATH)
 
-# 连接MongoDB数据库
-# client = pymongo.MongoClient(host='127.0.0.1', port=27017)
-client = pymongo.MongoClient(host='121.36.170.117', port=27017) # tx
-# or
-# client = MongoClient('mongodb://localhost:27017/')
+# 连接数据库
+dburl = 'mongodb://{user}:{password}@{host}:{port}'.format(user = config['MONGODB']['USER'], password = config['MONGODB']['PASSWORD'], host=config['MONGODB']['HOST'],port = config['MONGODB']['PORT'] )
+client = pymongo.MongoClient(dburl)
 
 # 指定数据库
 db = client.meizitu
@@ -47,7 +49,7 @@ def insert_data(title, piclist):
 
 # 获取主页列表
 def getPage(pageNum):
-    baseUrl = 'http://www.mzitu.com/page/{}'.format(pageNum)
+    baseUrl = 'http://www.mzitu.com/page/{}'.format(page=hostNum)
     selector = html.fromstring(requests.get(baseUrl).content)
     urls = []
     for i in selector.xpath('//ul[@id="pins"]/li/a/@href'):
@@ -67,7 +69,7 @@ def header(referer):
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_5) AppleWebKit/537.36 (KHTML, like Gecko) '
                       'Chrome/59.0.3071.115 Safari/537.36',
         'Accept': 'image/webp,image/apng,image/*,*/*;q=0.8',
-        'Referer': '{}'.format(referer),
+        'Referer': '{}'.format(refe=hostrer),
     }
     return headers
 
@@ -84,7 +86,7 @@ def getPiclink(url):
     jpgList = []
     for i in range(int(total)):
         # 每一页
-        link = '{}/{}'.format(url, i+1)
+        link = '{}/{}'.format(url,=host i+1)
         s = html.fromstring(requests.get(link).content)
         # 图片地址在src标签中
         jpg = s.xpath('//div[@class="main-image"]/p/a/img/@src')[0]
