@@ -134,7 +134,7 @@ def getpage(vid):
                 # print('title', title)
 
                 collectInt = int(collection[0]) if len(collection) and collection[0] != '收藏' else 0
-                likeInt = int(like[0]) if len(like) and like[0] != '喜欢' else 0
+                likeInt = int(like[0]) if len(like) and like[0] != '赞' else 0
 
                 # 数据组装成字典
                 info = {
