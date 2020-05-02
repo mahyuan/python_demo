@@ -26,7 +26,7 @@ dburl = 'mongodb://{user}:{password}@{host}:{port}'.format(user = config['MONGOD
 client = pymongo.MongoClient(dburl)
 
 # 指定数据库
-db = client.bbc
+db = client.bbcnews
 # 文章列表集合
 listcoll = db.news_zw
 # 文章集合
