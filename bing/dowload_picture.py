@@ -12,6 +12,8 @@ import random
 # from bs4 import BeautifulSoup
 import os
 import configparser
+import platform
+
 
 CONFIG_PATH = os.environ['MONGO_CONFIG_PATH']
 
@@ -50,12 +52,28 @@ headers = {
         # "Cookie": "__jsluid=f7d1765611fbb2cf9ea900538aef4098",
     }
 
+def UsePlatform( ):
+    sysstr = platform.system()
+    print('sysstr', sysstr)
+    return sysstr
 
 def request_download():
     info = get_url()
     count = 0
-    for item in info:
+
+    sysstr = UsePlatform()
+
+    if(sysstr =="Windows"):
+        print ("Call Windows tasks")
+    elif(sysstr == "Linux"):
+        dirname = '/mnt/e/images/bing/bing'
+        print ("Call Linux tasks")
+    else:
         dirname = '/Users/mhy/Pictures/bing'
+        print ("Other System tasks")
+
+
+    for item in info:
         print('--item-', item)
         suffix = "?imageslim";
 
@@ -88,11 +106,11 @@ def request_download():
                 print('path: {}, is_exists: {}, count: {}'.format(fullname, is_exists, count))
 
 
-def remove_dir():
-    dirname = '/Users/mhy/Pictures/bing'
-    print ("目录为: %s" % os.listdir(os.getcwd()))
+# def remove_dir():
+#     dirname = '/Users/mhy/Pictures/bing'
+#     print ("目录为: %s" % os.listdir(os.getcwd()))
 
-    os.unlink("aa.txt")
+#     os.unlink("aa.txt")
 
 
 if __name__ == '__main__':
