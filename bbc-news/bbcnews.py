@@ -2,7 +2,6 @@
 
 from __future__ import print_function
 import requests
-import user_agent
 import urllib3
 from lxml import html
 import pymongo
@@ -13,9 +12,9 @@ import random
 import json
 import os
 import configparser
+from fake_useragent import UserAgent
 # json.dumps(): 对数据进行编码。
 # json.loads(): 对数据进行解码。
-
 
 
 CONFIG_PATH = os.environ['MONGO_CONFIG_PATH']
@@ -46,7 +45,6 @@ def insertArticle(article):
     return
 
 def getPage(src, referer):
-    ua = user_agent.getua()
     urlTuple = urlparse(src)
     # 元祖 ParseResult(scheme='https', netloc='www.bbc.com', path='/zhongwen/simp/world-52133520', params='', query='', fragment='')
     headers = {
@@ -55,7 +53,7 @@ def getPage(src, referer):
         "authority": urlTuple[1],
         "path": urlTuple[2],
         "referer": referer,
-        "user-agent": ua,
+        "user-agent": UserAgent(verify_ssl=False).random,
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
         'connection': 'close',
         "upgrade-insecure-requests": "1",
