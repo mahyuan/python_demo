@@ -15,16 +15,23 @@ import re
 # import sys
 # import signal
 import urllib3
-import user_agent
+from fake_useragent import UserAgent
+import os
+import configparser
 
-host = 'https://h5.xiaohongchun.com'
+
+CONFIG_PATH = os.environ['MONGO_CONFIG_PATH']
+
+config = configparser.ConfigParser()
+config.read(CONFIG_PATH)
 
 # 连接数据库
-# client = pymongo.MongoClient(host='127.0.0.1', port=27017)
-client = pymongo.MongoClient(host='121.36.170.117', port=27017) # huaweiyun
+dburl = 'mongodb://{user}:{password}@{host}:{port}'.format(user = config['MONGODB']['USER'], password = config['MONGODB']['PASSWORD'], host=config['MONGODB']['HOST'],port = config['MONGODB']['PORT'] )
+client = pymongo.MongoClient(dburl)
 
 # 指定数据库
 db = client.xhc
+
 # 指定集合
 collname = db.video_comment
 # 缺少评论的vid集合
@@ -61,7 +68,6 @@ def insert_data(info):
     print(result)
 
 def getpage(vid):
-    ua = user_agent.getua()
     # proxies = {'http': 'http://119.101.125.248', 'https': 'https://119.101.125.226'}
     headers = {
         "accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8",
@@ -73,10 +79,11 @@ def getpage(vid):
         "scheme": "https",
         "referer":"https://h5.xiaohongchun.com/video?vid={}".format(vid),
         "authority": "h5.xiaohongchun.com",
-        "User-Agent": ua,
+        "User-Agent": UserAgent(verify_ssl=False).random,
         "accept-encoding": "br, gzip, deflate"
     }
-    baseurl = '{host}/video/{vid}/comments'.format(host=host, vid=vid)
+
+    baseurl = 'https://h5.xiaohongchun.com/video/{vid}/comments'.format(vid=vid)
 
     try:
         # response = requests.get(baseurl, headers=headers, proxies=proxies)
@@ -123,8 +130,7 @@ def start(vid, isIncreasing):
 
 
         vid = getNextVid(vid, isIncreasing)
-        # time.sleep(random.randint(0,1))
-        time.sleep(random.uniform(5, 10))
+        time.sleep(random.uniform(3, 5))
 
 
 
@@ -132,7 +138,7 @@ if __name__ == '__main__':
     # v = int(get_last_vid())
     # order 递增： 1， 递减： 0
     order = 1
-    maxVid = get_max_vid(order)
+    maxVid = 1000 #get_max_vid(order)
     if isinstance(maxVid, int):
         start(maxVid, order)
     else:
