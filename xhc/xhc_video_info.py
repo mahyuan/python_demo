@@ -133,7 +133,8 @@ def getpage(vid):
                 collection = selector.xpath('//span[starts-with(@class, "collect-")]/text()')
                 # print('title', title)
 
-                collectInt = int(collection[0]) if len(collection) and collection[0] != '收藏' else 0
+                collectInt = collection[0] if len(collection) and collection[0] != '收藏' else 0
+                # collectInt = int(collection[0]) if len(collection) and collection[0] != '收藏' else 0
 
                 # likeInt = int(like[0]) if len(like) and like[0] != '喜欢' else 0
                 likeInt = like[0] if len(like) and like[0] != '喜欢' else 0
