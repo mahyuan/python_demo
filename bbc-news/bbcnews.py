@@ -16,10 +16,15 @@ from fake_useragent import UserAgent
 # json.dumps(): 对数据进行编码。
 # json.loads(): 对数据进行解码。
 
-
 CONFIG_PATH = os.environ['MONGO_CONFIG_PATH']
-config = configparser.ConfigParser()
-config.read(CONFIG_PATH)
+
+def get_config():
+    cfg = configparser.ConfigParser()
+    cfg.read(CONFIG_PATH)
+    return cfg
+
+# 连接数据库
+config = get_config()
 
 dburl = 'mongodb://{user}:{password}@{host}:{port}'.format(user = config['MONGODB']['USER'], password = config['MONGODB']['PASSWORD'], host=config['MONGODB']['HOST'],port = config['MONGODB']['PORT'] )
 client = pymongo.MongoClient(dburl)
