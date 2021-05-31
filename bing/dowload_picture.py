@@ -95,7 +95,7 @@ def request_download():
         dirname = '/mnt/e/images/bing/bing'
         print ("Call Linux tasks")
     else:
-        dirname = '/Users/mhy/Pictures/bing'
+        dirname = "/Users/mahy/Pictures/bing"
         print ("Other System tasks")
 
 
